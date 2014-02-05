@@ -12,6 +12,7 @@
 
 module Data.SBV.SMT.SMTLib2(cvt, addNonEqConstraints) where
 
+import Control.Arrow (second)
 import Data.Bits (bit)
 import qualified Data.Foldable as F (toList)
 import qualified Data.Map      as M
@@ -47,10 +48,18 @@ addNonEqConstraints rm qinps allNonEqConstraints (SMTLibPgm _ (aliasTable, pre, 
 
 nonEqs :: RoundingMode -> [(String, CW)] -> [String]
 nonEqs _  []     =  []
-nonEqs rm [sc]   =  ["(assert " ++ nonEq rm sc ++ ")"]
-nonEqs rm (sc:r) =  ["(assert (or " ++ nonEq rm sc]
-                 ++ map (("            " ++) . nonEq rm) r
+nonEqs rm scs    =  ["(assert (or "]
+                 ++ map (("            " ++) . nonEq rm) ps
+                 ++ map (("            " ++) . nonEqSym) (symEqs ups)
                  ++ ["        ))"]
+  where (ups, ps) = partition (isUninterpreted . snd) scs
+
+symEqs :: [(String, CW)] -> [[String]]
+symEqs = filter ((>1) . length) . M.elems . M.fromListWith (++) . map (second (:[]) . swap)
+  where swap (a,b) = (b,a)
+
+nonEqSym :: [String] -> String
+nonEqSym xs = "(not (= " ++ unwords xs ++ "))"
 
 nonEq :: RoundingMode -> (String, CW) -> String
 nonEq rm (s, c) = "(not (= " ++ s ++ " " ++ cvtCW rm c ++ "))"

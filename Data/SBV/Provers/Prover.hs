@@ -389,8 +389,6 @@ allSatWith config p = do
         msg "Checking Satisfiability, all solutions.."
         sbvPgm@(qinps, _, _, ki, _) <- simulate converter config True [] p
         let usorts = [s | KUninterpreted s <- Set.toList ki]
-        unless (null usorts) $ error $  "SBV.allSat: All-sat calls are not supported in the presence of uninterpreted sorts: " ++ unwords usorts
-                                     ++ "\n    Only 'sat' and 'prove' calls are available when uninterpreted sorts are used."
         resChan <- newChan
         let add  = writeChan resChan . Just
             stop = writeChan resChan Nothing

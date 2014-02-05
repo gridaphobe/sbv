@@ -182,6 +182,7 @@ Executable SBVUnitTests
                   , TestSuite.Uninterpreted.Function
                   , TestSuite.Uninterpreted.Uninterpreted
                   , TestSuite.Uninterpreted.Axioms
+                  , TestSuite.Uninterpreted.Sort
 
 Test-Suite SBVBasicTests
   type            : exitcode-stdio-1.0
